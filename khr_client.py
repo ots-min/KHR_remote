@@ -6,95 +6,148 @@ Created on Wed Sep  9 14:59:39 2020
 """
 
 import socket
-import tkinter
 import serial
+import tkinter
+from tkinter import ttk
+from tkinter import messagebox
+import ctypes
+
+def key_scan(key):
+    return(bool(ctypes.windll.user32.GetAsyncKeyState(key)&0x8000))
 
 def com_start():
     global com_on
     global sock, ser
-    global com_num, speed
+    global str_com, str_stat
     
     try:
-        ser = serial.Serial(com_num.get(), int(speed.get()), parity=serial.PARITY_EVEN)
-        print("シリアルポートをオープンしました: ",com_num.get())
+        ser = serial.Serial(str_com.get(), 115200, parity=serial.PARITY_EVEN)
+        print("シリアルポートをオープンしました: ",str_com.get())
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print("create socket")
+        print("ソケットをオープンしました")
+        
+        str_stat.set("通信中")
         com_on = True
     except:
-        print("シリアルポートがオープンできません: ",com_num.get())
+        print("シリアルポートがオープンできません")
+        messagebox.showerror("エラー", "シリアルポートがオープンできません")
     
 def com_end():
     global com_on
     global sock, ser
+    global str_stat
     
     com_on = False
+
+    sock.close()
+    print("ソケットをクローズしました")
     
     ser.close()
     print("シリアルポートをクローズしました")
     
-    sock.close()
-    print("close socket")
+    str_stat.set("通信終了")
 
 def scan_button():
-    global w, com_on, old_data
+    global f, com_on
     global sock, ser
-    global s_address, port
+    global str_ip, str_port, str_mode
 
     refresh_rate = 10 #ボタンデータ読み取り間隔(ms)
     
     if(com_on == True):
-        com_line = [0xBF,0x7F,0x00,0x02]
-        ser.write(com_line)
+        if(str_mode.get() == "KRC"):
+            com_line = [0xBF,0x7F,0x00,0x02]
+            ser.write(com_line)
     
-        r_data = ser.read(12)
-        data = r_data[8]*4096 + r_data[9]*256 + r_data[10]*16 + r_data[11]
-        if(data != old_data):
-            old_data = data
-            s_data = data.to_bytes(2,"big")
-            print(s_data[0],s_data[1])
-        
-            sock.sendto(s_data, (s_address.get(),int(port.get())))
+            r_data = ser.read(12)
+            data = r_data[8]*4096 + r_data[9]*256 + r_data[10]*16 + r_data[11]
+        else:
+            data = 0
+            if(key_scan(87)): #w
+                data |= 1 
+            if(key_scan(65)): #a
+                data |= 8
+            if(key_scan(83)): #s
+                data |= 2
+            if(key_scan(68)): #d
+                data |= 4
+            if(key_scan(81)): #q(a+s)
+                data |= 10
+            if(key_scan(69)): #e(d+s)
+                data |= 6
+            if(key_scan(38)): #UP
+                data |= 16
+
+        s_data = data.to_bytes(2,"big")
+        #print(s_data[0],s_data[1])
+        sock.sendto(s_data, (str_ip.get(),int(str_port.get())))
     
-    w.after(refresh_rate, scan_button)
+    f.after(refresh_rate, scan_button)
     
 def main():
-    global w, com_on, old_data
-    global s_address, port
-    global com_num, speed
+    global f, com_on
+    global str_ip, str_port, str_com, str_stat, str_mode
 
     w = tkinter.Tk()
-    w.title("Player UI")
+    w.title("プレイヤーUI")
 
-    s_address = tkinter.StringVar()
-    e1 = tkinter.Entry(w, textvariable=s_address, width=20, font=("",15))
-    e1.insert(0, "192.168.1.23")
-    e1.pack()
+    f = ttk.Frame(w, padding=10) 
+    f.pack()
     
-    port = tkinter.StringVar()
-    e2 = tkinter.Entry(w, textvariable=port, width=20, font=("",15))
-    e2.insert(0, "59905")
-    e2.pack()
+    b_start = ttk.Button(f, text="通信開始", command=com_start)
+    b_start.grid(row=0, column=0, columnspan=2)
     
-    com_num = tkinter.StringVar()
-    e3 = tkinter.Entry(w, textvariable=com_num, width=20, font=("",15))
-    e3.insert(0, "COM3")
-    e3.pack() 
+    b_end = ttk.Button(f, text="通信終了", command=com_end)
+    b_end.grid(row=1, column=0, columnspan=2)
+
+    label1 = ttk.Label(f, text="サーバーIPアドレス")
+    label1.grid(row=2, column=0)
     
-    speed = tkinter.StringVar()
-    e4 = tkinter.Entry(w, textvariable=speed, width=20, font=("",15))
-    e4.insert(0, "115200")
-    e4.pack()
+    str_ip = tkinter.StringVar()
+    str_ip.set("192.168.1.23")
+    e_ip = ttk.Entry(f, textvariable=str_ip)
+    e_ip.grid(row=2, column=1)
     
-    b_start = tkinter.Button(w,text="通信開始",font=("",20),command=com_start)
-    b_start.pack()
+    label2 = ttk.Label(f, text="ポート番号")
+    label2.grid(row=3, column=0)
     
-    b_end = tkinter.Button(w,text="通信終了",font=("",20),command=com_end)
-    b_end.pack()
+    str_port = tkinter.StringVar()
+    str_port.set("10000")
+    e_port = ttk.Entry(f, textvariable=str_port)
+    e_port.grid(row=3, column=1)
+    
+    label3 = ttk.Label(f, text="COM番号")
+    label3.grid(row=4, column=0)
+    
+    str_com = tkinter.StringVar()
+    str_com.set("COM3")
+    e_com = ttk.Entry(f, textvariable=str_com)
+    e_com.grid(row=4, column=1)
+
+    label4 = ttk.Label(f, text="入力デバイス")
+    label4.grid(row=5, column=0)
+    
+    str_mode = tkinter.StringVar()
+    f_mode = ttk.Frame(f) 
+    r_mode1 = ttk.Radiobutton(f_mode, text="KRC", value="KRC", variable=str_mode)
+    r_mode1.grid(row=0, column=0)
+    r_mode2 = ttk.Radiobutton(f_mode, text="キーボード", value="キーボード", variable=str_mode)
+    r_mode2.grid(row=0, column=1)
+    str_mode.set("KRC")
+    f_mode.grid(row=5, column=1)
+
+    label9 = ttk.Label(f, text="ステータス")
+    label9.grid(row=6, column=0)
+    
+    str_stat = tkinter.StringVar()
+    str_stat.set("開始待ち")
+    l_stat = ttk.Label(f, textvariable=str_stat)
+    l_stat.grid(row=6, column=1)
+
 
     com_on = False
-    old_data = 0
     
-    w.after(0,scan_button)
-    w.mainloop()
+    f.after(0,scan_button)
+    f.mainloop()
 
 main()
