@@ -39,7 +39,7 @@ def khr_start():
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print("ソケットをオープンしました")
 
-        sock.settimeout(0.01)
+        sock.settimeout(0.05) #クライアントの更新レートに合わせる
         sock.bind((str_ip.get(),0))
         print("port = ", sock.getsockname()[1])
         str_port.set(sock.getsockname()[1])
