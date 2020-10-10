@@ -80,6 +80,8 @@ def scan_button():
                 data |= 6
             if(key_scan(38)): #UP
                 data |= 16
+            if(key_scan(85)): #U
+                data |= 4096 #シフト4(起き上がり)
 
         s_data = data.to_bytes(2,"big")
         #print(s_data[0],s_data[1])
