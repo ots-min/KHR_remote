@@ -117,46 +117,48 @@ def main():
     r_mode2 = ttk.Radiobutton(f_mode, text="キーボード", value="キーボード", variable=str_mode, command=mode_change)
     r_mode2.grid(row=0, column=1)
     str_mode.set("KRC")
-    f_mode.grid(row=0, column=1)
+    f_mode.grid(row=0, column=1, columnspan=2)
+
+    label5 = ttk.Label(f, text="ネットワーク")
+    label5.grid(row=1, column=0)
     
     b_start = ttk.Button(f, text="通信開始", command=com_start)
-    b_start.grid(row=1, column=0, columnspan=2)
+    b_start.grid(row=1, column=1)
     
     b_end = ttk.Button(f, text="通信終了", command=com_end)
-    b_end.grid(row=2, column=0, columnspan=2)
+    b_end.grid(row=1, column=2)
 
     label1 = ttk.Label(f, text="サーバーIPアドレス")
-    label1.grid(row=3, column=0)
+    label1.grid(row=2, column=0)
     
     str_ip = tkinter.StringVar()
     str_ip.set("192.168.1.23")
     e_ip = ttk.Entry(f, textvariable=str_ip)
-    e_ip.grid(row=3, column=1)
+    e_ip.grid(row=2, column=1, columnspan=2)
     
     label2 = ttk.Label(f, text="ポート番号")
-    label2.grid(row=4, column=0)
+    label2.grid(row=3, column=0)
     
     str_port = tkinter.StringVar()
     str_port.set("10000")
     e_port = ttk.Entry(f, textvariable=str_port)
-    e_port.grid(row=4, column=1)
+    e_port.grid(row=3, column=1, columnspan=2)
     
     label3 = ttk.Label(f, text="COM番号")
-    label3.grid(row=5, column=0)
+    label3.grid(row=4, column=0)
     
     str_com = tkinter.StringVar()
     str_com.set("COM3")
     e_com = ttk.Entry(f, textvariable=str_com)
-    e_com.grid(row=5, column=1)
+    e_com.grid(row=4, column=1, columnspan=2)
 
     label9 = ttk.Label(f, text="ステータス")
-    label9.grid(row=6, column=0)
+    label9.grid(row=5, column=0)
     
     str_stat = tkinter.StringVar()
     str_stat.set("開始待ち")
     l_stat = ttk.Label(f, textvariable=str_stat)
-    l_stat.grid(row=6, column=1)
-
+    l_stat.grid(row=5, column=1, columnspan=2)
 
     com_on = False
     
