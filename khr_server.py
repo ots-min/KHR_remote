@@ -47,7 +47,7 @@ def net_start():
     com_on = True
 
 def net_end():
-    global str_stat
+    global str_stat, l_stat
     global sock, com_on
 
     com_on = False
@@ -56,9 +56,10 @@ def net_end():
     print("ソケットをクローズしました")
     
     str_stat.set("通信終了")
+    l_stat.config(foreground="black")
 
 def khr_start():
-    global str_com, str_stat2
+    global str_com, str_stat2, l_stat2
     global ser, khr_on
 
     try:
@@ -66,12 +67,13 @@ def khr_start():
         print("シリアルポートをオープンしました")
         
         str_stat2.set("接続中")
+        l_stat2.config(foreground="green")
         khr_on = True
     except:
         messagebox.showerror("エラー", "シリアルポートがオープンできません")
     
 def khr_end():
-    global str_stat2
+    global str_stat2, l_stat2
     global ser, khr_on
     
     khr_on = False
@@ -80,27 +82,30 @@ def khr_end():
     print("シリアルポートをクローズしました")
     
     str_stat2.set("通信終了")
+    l_stat2.config(foreground="black")
     
 def wait_data():
     global sock
     global f, com_on, com_line, old_data
-    global str_stat
+    global str_stat, l_stat
     
     if(com_on == True):
         try:
             data, c_address = sock.recvfrom(2)
             str_stat.set("パケット受信中")
+            l_stat.config(foreground="green")
             if(data != old_data):
                 print(data[0], data[1], c_address)
                 send_command(data)
                 old_data = data
         except socket.timeout:
             str_stat.set("パケット待ち")
+            l_stat.config(foreground="black")
     
     f.after(10, wait_data)
 
 def main():
-    global str_ip, str_port, str_com, str_stat, str_stat2
+    global str_ip, str_port, str_com, str_stat, str_stat2, l_stat, l_stat2
     global f, com_on, khr_on, com_line, old_data
     
     com_line = [0x0D,0x00,0x02,0x50,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x62]
@@ -134,9 +139,10 @@ def main():
     label1.grid(row=2, column=0)
 
     str_ip = tkinter.StringVar()
-    str_ip.set("192.168.1.23")
-    e_ip = ttk.Entry(f,textvariable=str_ip)
-    e_ip.grid(row=2, column=1, columnspan=2)
+    str_ip.set(socket.gethostbyname(socket.gethostname()))
+    
+    l_ip = ttk.Label(f,textvariable=str_ip)
+    l_ip.grid(row=2, column=1, columnspan=2)
     
     label2 = ttk.Label(f,text="ポート番号")
     label2.grid(row=3, column=0)
