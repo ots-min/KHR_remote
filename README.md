@@ -4,4 +4,5 @@ KHRをネット経由で操作するためのプログラム。使い方はこ�
 https://monoist.atmarkit.co.jp/mn/articles/2010/26/news017.html
 
 khr_serverはLAN内での使用を想定したバージョン。
+
 khr_server_natはNATを越えてLAN外からアクセスする必要があるときのために、GoogleのSTUNサーバーと通信し、WAN側のIPアドレスとポート番号を調べて表示しています。この機能のために、pynatというモジュールを追加で使用しています。
