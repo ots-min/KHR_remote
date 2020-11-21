@@ -28,7 +28,7 @@ def com_start():
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print("ソケットをオープンしました")
         
-        str_stat.set("通信中")
+        str_stat.set("送信中")
         com_on = True
     except:
         print("シリアルポートがオープンできません")

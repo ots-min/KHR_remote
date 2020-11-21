@@ -39,12 +39,16 @@ def net_start():
     print("ソケットをオープンしました")
 
     sock.settimeout(0.05) #クライアントの更新レートに合わせる
-    sock.bind((str_ip.get(),0))
-    print("port = ", sock.getsockname()[1])
-    str_port.set(sock.getsockname()[1])
+    
+    try:
+        sock.bind((str_ip.get(),int(str_port.get())))
+        print("port = ", sock.getsockname()[1])
         
-    str_stat.set("パケット待ち")
-    com_on = True
+        str_stat.set("パケット待ち")
+        com_on = True
+    except:
+        print("バインド失敗") 
+        str_stat.set("バインド失敗")
 
 def net_end():
     global str_stat, l_stat
@@ -141,16 +145,16 @@ def main():
     str_ip = tkinter.StringVar()
     str_ip.set(socket.gethostbyname(socket.gethostname()))
     
-    l_ip = ttk.Label(f,textvariable=str_ip)
-    l_ip.grid(row=2, column=1, columnspan=2)
+    e_ip = ttk.Entry(f,textvariable=str_ip,state="readonly")
+    e_ip.grid(row=2, column=1, columnspan=2)
     
     label2 = ttk.Label(f,text="ポート番号")
     label2.grid(row=3, column=0)
 
     str_port = tkinter.StringVar()
-    str_port.set("00000")
-    l_port = ttk.Label(f,textvariable=str_port)
-    l_port.grid(row=3, column=1, columnspan=2)
+    str_port.set("54141")
+    e_port = ttk.Entry(f,textvariable=str_port)
+    e_port.grid(row=3, column=1, columnspan=2)
     
     label3 = ttk.Label(f,text="COM番号")
     label3.grid(row=4, column=0)
